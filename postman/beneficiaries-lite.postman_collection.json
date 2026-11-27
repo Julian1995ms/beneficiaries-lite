@@ -1,0 +1,317 @@
+{
+  "info": {
+    "_postman_id": "d7b7a07e-1caa-4ab8-a8ff-79dcf19fd5a1",
+    "name": "beneficiaries-lite",
+    "description": "Colección para probar el microservicio beneficiaries-lite.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "customerId",
+      "value": "12345678"
+    },
+    {
+      "key": "beneficiaryId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Registrar beneficiario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+              "if (pm.response.code === 201) { pm.collectionVariables.set(\"beneficiaryId\", pm.response.json().id); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"alias\": \"Proveedor papelería\",\n  \"holderName\": \"Papelería La Estrella SA de CV\",\n  \"clabe\": \"032000000000000010\",\n  \"maxAmount\": 50000.0,\n  \"email\": \"pagos@laestrella.mx\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/beneficiaries",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "beneficiaries"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Consultar beneficiarios activos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/beneficiaries?customerId={{customerId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "beneficiaries"
+          ],
+          "query": [
+            {
+              "key": "customerId",
+              "value": "{{customerId}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Consultar beneficiario por ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/beneficiaries/{{beneficiaryId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "beneficiaries",
+            "{{beneficiaryId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Desactivar beneficiario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/beneficiaries/{{beneficiaryId}}/deactivate",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "beneficiaries",
+            "{{beneficiaryId}}",
+            "deactivate"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Health check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/q/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "q",
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Escenarios de error",
+      "item": [
+        {
+          "name": "CLABE duplicada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"alias\": \"Duplicado\",\n  \"holderName\": \"Titular Duplicado\",\n  \"clabe\": \"032000000000000010\",\n  \"maxAmount\": 1000.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/beneficiaries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "beneficiaries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLABE inválida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"alias\": \"Inválido\",\n  \"holderName\": \"Titular Inválido\",\n  \"clabe\": \"032180000118359718\",\n  \"maxAmount\": 1000.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/beneficiaries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "beneficiaries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Datos de entrada inválidos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"123\",\n  \"alias\": \"x\",\n  \"holderName\": \"\",\n  \"clabe\": \"032000000000000023\",\n  \"maxAmount\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/beneficiaries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "beneficiaries"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Beneficiario inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/beneficiaries/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "beneficiaries",
+                "999999"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
